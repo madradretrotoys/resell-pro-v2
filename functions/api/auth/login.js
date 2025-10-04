@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { neon } from 'https://esm.sh/@neondatabase/serverless@0.9.5?target=es2022';
 
 // ---------- JWT helpers (no dependencies) ----------
 const te = new TextEncoder();
@@ -36,9 +36,10 @@ export async function onRequestPost({ request, env }) {
     const { identifier, password } = await request.json();
     if (!identifier || !password) return json({ error: 'Missing credentials.' }, 400);
 
+    // Connect to Neon over fetch (HTTP driver)
     const sql = neon(env.DATABASE_URL);
 
-    // Validate credentials fully in SQL using pgcrypto's crypt()
+    // Validate credentials in SQL using pgcrypto's crypt()
     const rows = await sql`
       SELECT user_id, login_id, name, email::text AS email
       FROM app.users
@@ -59,7 +60,9 @@ export async function onRequestPost({ request, env }) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Set-Cookie': cookie('rp_session', token, { httpOnly: true, secure: true, sameSite: 'Lax', path: '/', maxAge: 60 * 60 * 24 * 7 })
+        'Set-Cookie': cookie('rp_session', token, {
+          httpOnly: true, secure: true, sameSite: 'Lax', path: '/', maxAge: 60 * 60 * 24 * 7
+        })
       }
     });
   } catch (err) {
