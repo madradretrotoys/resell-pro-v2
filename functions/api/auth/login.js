@@ -1,33 +1,22 @@
 import { neon } from '@neondatabase/serverless';
-import bcrypt from 'bcryptjs';
 
-// ----- JWT helpers (no dependencies) -----
+// ---------- JWT helpers (no dependencies) ----------
 const te = new TextEncoder();
 function b64urlFromBytes(bytes) {
-  let str = '';
-  for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-}
-function bytesFromB64url(b64url) {
-  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 async function signJWT(payload, secret, expSeconds = 60 * 60 * 24 * 7) {
   const header = { alg: 'HS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);
   const body = { iat: now, exp: now + expSeconds, ...payload };
-
   const h = b64urlFromBytes(te.encode(JSON.stringify(header)));
   const p = b64urlFromBytes(te.encode(JSON.stringify(body)));
   const data = `${h}.${p}`;
-
   const key = await crypto.subtle.importKey('raw', te.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', key, te.encode(data));
   const s = b64urlFromBytes(new Uint8Array(sig));
-
   return `${data}.${s}`;
 }
 
@@ -48,17 +37,17 @@ export async function onRequestPost({ request, env }) {
     if (!identifier || !password) return json({ error: 'Missing credentials.' }, 400);
 
     const sql = neon(env.DATABASE_URL);
+
+    // Validate credentials fully in SQL using pgcrypto's crypt()
     const rows = await sql`
-      SELECT user_id, login_id, name, email::text AS email, password_hash
+      SELECT user_id, login_id, name, email::text AS email
       FROM app.users
       WHERE (login_id = ${identifier} OR email::text = ${identifier})
+        AND password_hash = crypt(${password}, password_hash)
       LIMIT 1;
     `;
     const user = rows[0];
     if (!user) return json({ error: 'Invalid credentials.' }, 401);
-
-    const ok = bcrypt.compareSync(password, user.password_hash);
-    if (!ok) return json({ error: 'Invalid credentials.' }, 401);
 
     const token = await signJWT(
       { sub: user.user_id, email: user.email, login_id: user.login_id, name: user.name },
@@ -66,9 +55,7 @@ export async function onRequestPost({ request, env }) {
       60 * 60 * 24 * 7
     );
 
-    return new Response(JSON.stringify({
-      user: { user_id: user.user_id, email: user.email, login_id: user.login_id, name: user.name }
-    }), {
+    return new Response(JSON.stringify({ user }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
