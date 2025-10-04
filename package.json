@@ -1,0 +1,10 @@
+{
+  "name": "resell-pro-v2",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.5",
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.2.4"
+  }
+}
