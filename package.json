@@ -1,8 +1,5 @@
 {
   "name": "resell-pro-v2",
   "private": true,
-  "type": "module",
-  "dependencies": {
-    "@neondatabase/serverless": "^0.9.5"
-  }
+  "type": "module"
 }
