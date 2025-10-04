@@ -1,0 +1,3 @@
+name = "resell-pro-v2-functions"
+compatibility_date = "2024-10-01"
+# no main, no routes needed for Pages Functions
