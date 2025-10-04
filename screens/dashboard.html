@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resell Pro — Dashboard</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body class="rp-bg">
+  <header class="rp-header">
+    <div class="rp-header-left">
+      <span class="rp-logo">Resell Pro</span>
+    </div>
+    <nav class="rp-header-right">
+      <button id="logoutBtn" class="rp-btn-secondary">Logout</button>
+    </nav>
+  </header>
+
+  <main class="rp-main">
+    <section class="rp-card">
+      <h1 class="rp-title">Dashboard</h1>
+      <p class="rp-subtitle">You’re signed in. This page is protected.</p>
+
+      <div id="user-info" class="rp-kv">
+        <div><span class="rp-k">Name</span><span class="rp-v" id="u-name">—</span></div>
+        <div><span class="rp-k">Email</span><span class="rp-v" id="u-email">—</span></div>
+        <div><span class="rp-k">Login ID</span><span class="rp-v" id="u-login">—</span></div>
+        <div><span class="rp-k">Tenant</span><span class="rp-v" id="u-tenant">—</span></div>
+        <div><span class="rp-k">Role</span><span class="rp-v" id="u-role">—</span></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/js/app.js" defer></script>
+  <script src="/assets/js/session.js" defer></script>
+</body>
+</html>
