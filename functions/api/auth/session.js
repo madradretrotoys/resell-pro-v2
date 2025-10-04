@@ -19,12 +19,9 @@ async function verifyJWT(token, secret) {
   const [h, p, s] = token.split('.');
   if (!h || !p || !s) throw new Error('Malformed token');
   const data = `${h}.${p}`;
-
   const key = await crypto.subtle.importKey('raw', te.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
-  const sigBytes = bytesFromB64url(s);
-  const ok = await crypto.subtle.verify('HMAC', key, sigBytes, te.encode(data));
+  const ok = await crypto.subtle.verify('HMAC', key, bytesFromB64url(s), te.encode(data));
   if (!ok) throw new Error('Bad signature');
-
   const payload = JSON.parse(td.decode(bytesFromB64url(p)));
   const now = Math.floor(Date.now() / 1000);
   if (payload.exp && payload.exp < now) throw new Error('Expired');
