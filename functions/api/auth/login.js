@@ -1,4 +1,4 @@
-import { neon } from 'https://cdn.jsdelivr.net/npm/@neondatabase/serverless@0.9.5/+esm';
+import { neon } from '@neondatabase/serverless';
 
 // ---------- JWT helpers (no dependencies) ----------
 const te = new TextEncoder();
