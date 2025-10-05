@@ -1,4 +1,5 @@
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
+import bcrypt from "bcryptjs";
 
 // ---------- JWT helpers (no dependencies) ----------
 const te = new TextEncoder();
